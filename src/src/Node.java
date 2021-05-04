@@ -5,25 +5,24 @@ import java.util.*;
 public class Node {
 
     private String name;
+    private int ID;
     private List<Node> shortestPath = new LinkedList<>();
-    private Integer distance = Integer.MAX_VALUE;
-    Map<Node, Integer> adjacentNodes = new HashMap<>();
 
-    public void addDestination(Node destination, int distance) {
-        adjacentNodes.put(destination, distance);
+    Map<Node, Link> adjacentNodes = new HashMap<>();
+
+    public void addDestination(Node destination, Link link) {
+        adjacentNodes.put(destination, link);
     }
- 
-    public Node(String name) {
-        this.name = name;
+    public void setAdjacentNodes(Map<Node, Link> adjacentNodes) {
+        this.adjacentNodes = adjacentNodes;
     }
-    
-    public Map<Node, Integer> getAdjacentNodes() {
+
+    public Map<Node, Link> getAdjacentNodes() {
         return adjacentNodes;
     }
 
-    public Integer getDistance() {
-        return distance;
-    }
+
+    public Node(String name, int ID){this.name = name; this.ID = ID;}
 
     public String getName() {
         return name;
@@ -33,20 +32,19 @@ public class Node {
         return shortestPath;
     }
 
-    public void setAdjacentNodes(Map<Node, Integer> adjacentNodes) {
-        this.adjacentNodes = adjacentNodes;
-    }
-    
-
-    public void setDistance(Integer distance) {
-        this.distance = distance;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setShortestPath(List<Node> shortestPath) {
         this.shortestPath = shortestPath;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 }

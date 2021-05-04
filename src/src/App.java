@@ -12,29 +12,29 @@ public class App {
 
         graph = initdata.init();
 
-        graph.show();
+        //graph.show();
         
         List<Node> nodes = new ArrayList<>();
 
         nodes.addAll(graph.getNodes());
 
-        Node node = nodes.get(1);
+        Node node = nodes.get(5);
 
-        System.out.println("\n\nNombre del nodo: " + node.getName());
+        //System.out.println("\n\nNombre del nodo: " + node.getName());
 
         graph = Dijkstra.calculateShortestPathFromSource(graph, node);
         
-        graph.show();
+        //graph.show();
         
         List<Node> sp = new ArrayList<>();
 
-        sp = node.getShortestPath();
+        /*sp = node.getShortestPath();
 
         System.out.println("Name + distance");
 
         for(Node n : sp){
             System.out.println(n.getName() + "       " + n.getDistance());
-        }
+        }*/
     }
     
 }

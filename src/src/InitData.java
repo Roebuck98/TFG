@@ -2,49 +2,69 @@ package src;
 
 public class InitData {
 
-    Node nodeA ;
-    Node nodeB ;
-    Node nodeC ;
-    Node nodeD ; 
-    Node nodeE ;
-    Node nodeF ;
+    Node nodeA;
+    Node nodeB;
+    Node nodeC;
+    Node nodeD;
+    Node nodeE;
+    Node nodeF;
+    Link linkA;
+    Link linkB;
+    Link linkC;
+    Link linkD;
+    Link linkE;
+    Link linkF;
+    Link linkG;
+    Link linkH;
     Graph graph;
 
-    public InitData(){
-        nodeA = new Node("A");
-        nodeB = new Node("B");
-        nodeC = new Node("C");
-        nodeD = new Node("D"); 
-        nodeE = new Node("E");
-        nodeF = new Node("F");
+    public InitData() {
+        nodeA = new Node("A", 0);
+        nodeB = new Node("B", 1);
+        nodeC = new Node("C", 2);
+        nodeD = new Node("D", 3);
+        nodeE = new Node("E", 4);
+        nodeF = new Node("F", 5);
         graph = new Graph();
+
+
+        linkA = new Link(nodeA, nodeB, 10);
+        linkB = new Link(nodeA, nodeC, 15);
+
+        linkC = new Link(nodeB, nodeD, 12);
+        linkD = new Link(nodeB, nodeF, 15);
+
+        linkE = new Link(nodeE, nodeC, 10);
+
+        linkF = new Link(nodeD, nodeE, 2);
+        linkG = new Link(nodeF, nodeD, 1);
+
+        linkH = new Link(nodeE, nodeF, 5);
+
     }
 
-    public Graph init(){
-       
+    public Graph init() {
 
-        nodeA.addDestination(nodeB, 10);
-        nodeB.addDestination(nodeA, 10);
-        nodeA.addDestination(nodeC, 15);
-        nodeC.addDestination(nodeA, 15);
+        nodeA.addDestination(nodeB, linkA);
+        nodeA.addDestination(nodeC, linkB);
+        nodeB.addDestination(nodeA, linkA);
+        nodeC.addDestination(nodeA, linkB);
 
-        nodeB.addDestination(nodeD, 12);
-        nodeB.addDestination(nodeF, 15);
-        nodeD.addDestination(nodeB, 12);
-        nodeF.addDestination(nodeB, 15);
+        nodeB.addDestination(nodeD, linkC);
+        nodeB.addDestination(nodeF, linkD);
+        nodeD.addDestination(nodeB, linkC);
+        nodeF.addDestination(nodeB, linkD);
 
-        nodeC.addDestination(nodeE, 10);
-        nodeE.addDestination(nodeC, 10);
+        nodeC.addDestination(nodeE, linkE);
+        nodeE.addDestination(nodeC, linkE);
 
-        nodeD.addDestination(nodeE, 2);
-        nodeD.addDestination(nodeF, 1);
-        nodeE.addDestination(nodeD, 2);
-        nodeF.addDestination(nodeD, 1);
+        nodeD.addDestination(nodeE, linkF);
+        nodeD.addDestination(nodeF, linkG);
+        nodeE.addDestination(nodeD, linkF);
+        nodeF.addDestination(nodeD, linkG);
 
-        nodeF.addDestination(nodeE, 5);
-        nodeE.addDestination(nodeF, 5);
-
-        
+        nodeF.addDestination(nodeE, linkH);
+        nodeE.addDestination(nodeF, linkH);
 
         graph.addNode(nodeA);
         graph.addNode(nodeB);
@@ -52,6 +72,15 @@ public class InitData {
         graph.addNode(nodeD);
         graph.addNode(nodeE);
         graph.addNode(nodeF);
+
+        graph.addLink(linkA);
+        graph.addLink(linkB);
+        graph.addLink(linkC);
+        graph.addLink(linkD);
+        graph.addLink(linkE);
+        graph.addLink(linkF);
+        graph.addLink(linkG);
+        graph.addLink(linkH);
 
         return graph;
     }

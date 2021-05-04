@@ -3,34 +3,73 @@ package src;
 import java.util.*;
 
 public class Graph {
-	private Set<Node> nodes = new HashSet<>();
+    private Set<Node> nodes = new HashSet<>();
+    private Set<Link> links = new HashSet<>();
 
-	public void addNode(Node nodeA) {
-		nodes.add(nodeA);
-	}
+    public void addNode(Node nodeA) {
+        nodes.add(nodeA);
+    }
 
-	public Set<Node> getNodes() {
-		return nodes;
-	}
+    public void addLink(Link link) {
+        links.add(link);
+    }
 
-	public void setNodes(Set<Node> nodes) {
-		this.nodes = nodes;
-	}
+    public Set<Node> getNodes() {
+        return nodes;
+    }
 
-	public void show() {
-		Iterator<Node> i = nodes.iterator();
-		while (i.hasNext()) {
-			Node n = i.next();
-			System.out.print(n.getName() + "-> ");
+    public Set<Link> getLinks() {
+        return links;
+    }
 
-			Iterator<Node> t = n.adjacentNodes.keySet().iterator();
-			
-			while (t.hasNext()) {
-				Node n2 = t.next();
-				System.out.print(n2.getName() + " - " + n2.getDistance() + " ; ");
+    public void setNodes(Set<Node> nodes) {
+        this.nodes = nodes;
+    }
 
-			}
-		}
+    public void setLinks(Set<Link> links) {
+        this.links = links;
+    }
 
-	}
+    public Node searchByID(int ID){
+
+        Node searchedNode = null;
+
+        for (Node node: nodes) {
+            if(node.getID() == ID){
+                searchedNode = node;
+            }
+        }
+
+        return searchedNode;
+    }
+
+    public Link searchLink(Node a, Node b){
+        Link searchedLink = null;
+
+        for (Link link:
+             links) {
+            if(link.getA().equals(a) && link.getB().equals(b) || link.getA().equals(b) && link.getB().equals(a) ){
+                searchedLink = link;
+            }
+        }
+
+        return searchedLink;
+    }
+
+    public void show() {
+        Iterator<Node> i = nodes.iterator();
+        while (i.hasNext()) {
+            Node n = i.next();
+            System.out.print(n.getName() + "-> ");
+
+            Iterator<Node> t = n.adjacentNodes.keySet().iterator();
+
+            while (t.hasNext()) {
+                Node n2 = t.next();
+                //System.out.print(n2.getName() + " - " + n2.getDistance() + " ; ");
+
+            }
+        }
+
+    }
 }
