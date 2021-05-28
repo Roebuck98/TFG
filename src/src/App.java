@@ -8,33 +8,33 @@ public class App {
         
         InitData initdata = new InitData();
 
-        Graph graph = new Graph();
+        Graph graph;
 
         graph = initdata.init();
 
-        //graph.show();
-        
         List<Node> nodes = new ArrayList<>();
 
         nodes.addAll(graph.getNodes());
 
-        Node node = nodes.get(5);
+        Node init = graph.searchByID(0);
 
-        //System.out.println("\n\nNombre del nodo: " + node.getName());
+        Node end = graph.searchByID(4);
 
-        graph = Dijkstra.calculateShortestPathFromSource(graph, node);
-        
-        //graph.show();
-        
-        List<Node> sp = new ArrayList<>();
+        List<Path> paths = new DefaultKShortestPathFinder()
+                .findShortestPaths(init, end, graph, 5);
 
-        /*sp = node.getShortestPath();
+        for (Path path : paths) {
+            for (Node n:
+                 path.getNodeList()) {
+                System.out.print(n.getName() + ", ");
+            }
 
-        System.out.println("Name + distance");
 
-        for(Node n : sp){
-            System.out.println(n.getName() + "       " + n.getDistance());
-        }*/
+            System.out.println(" " + path.pathCost());
+        }
+
+
+
     }
     
 }

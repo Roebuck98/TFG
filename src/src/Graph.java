@@ -56,20 +56,17 @@ public class Graph {
         return searchedLink;
     }
 
-    public void show() {
-        Iterator<Node> i = nodes.iterator();
-        while (i.hasNext()) {
-            Node n = i.next();
-            System.out.print(n.getName() + "-> ");
+    public Collection<Link> getLinksFrom(Node from) {
+        Collection <Link> searchedLink = new ArrayList<>();
 
-            Iterator<Node> t = n.adjacentNodes.keySet().iterator();
-
-            while (t.hasNext()) {
-                Node n2 = t.next();
-                //System.out.print(n2.getName() + " - " + n2.getDistance() + " ; ");
-
+        for (Link link:
+                links) {
+            if(link.getA().equals(from)){
+                searchedLink.add(link);
             }
         }
 
+        return searchedLink;
     }
+
 }

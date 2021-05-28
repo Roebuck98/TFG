@@ -7,6 +7,9 @@ public class Node {
     private String name;
     private int ID;
     private List<Node> shortestPath = new LinkedList<>();
+    private List<Graph> kShortestPaths = new LinkedList<>();
+    private int MEMORY_SIZE_TOTAL;
+    private List <Instruction> buffer = new LinkedList<>();
 
     Map<Node, Link> adjacentNodes = new HashMap<>();
 
@@ -38,6 +41,14 @@ public class Node {
 
     public void setShortestPath(List<Node> shortestPath) {
         this.shortestPath = shortestPath;
+    }
+
+    public void setkShortestPaths(List<Graph> ksp){
+        this.kShortestPaths = ksp;
+    }
+
+    public List<Graph> getkShortestPaths() {
+        return kShortestPaths;
     }
 
     public int getID() {

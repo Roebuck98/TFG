@@ -5,12 +5,16 @@ public class Link {
     private Node a;
     private Node b;
     private int cost;
+    private final int MAX_BAND = 10;
+    private int bandwidth;
+
 
     public Link(Node a, Node b, int cost) {
 
         this.a = a;
         this.b = b;
         this.cost = cost;
+        bandwidth = 0;
     }
 
     public Node getA() {
@@ -38,4 +42,20 @@ public class Link {
     public void setCost(int cost) {
         this.cost = cost;
     }
+
+    public int getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(int bandwidth) {
+        if(this.bandwidth + bandwidth > MAX_BAND){
+            System.out.println("Cannot take this link because it would cause overflow");
+        }else{
+            this.bandwidth = bandwidth;
+        }
+
+
+    }
+
+
 }
