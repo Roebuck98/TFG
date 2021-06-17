@@ -11,16 +11,25 @@ public class Path {
 
     private final Node node;
     private final double totalCost;
+    private final double load;
+    private final double MAX_LOAD;
+    private static double MLU;
 
     public Path(Node source) {
         Objects.requireNonNull(source, "The input source node is null.");
         node = source;
         totalCost = 0.0;
+        load = 0.0;
+        MAX_LOAD = 0.0;
+        MLU = 0.0;
     }
 
-    private Path(Node node, double totalCost) {
+    private Path(Node node, double totalCost, double load, double max_load, double MLU) {
         this.node = node;
         this.totalCost = totalCost;
+        this.load = load;
+        this.MAX_LOAD = max_load;
+        this.MLU = MLU;
     }
 
 
@@ -45,11 +54,34 @@ public class Path {
         return totalCost;
     }
 
+    public double getLoad(){
+        return load;
+    }
+
+    public double getMAX_LOAD() {
+        return MAX_LOAD;
+    }
+
+    public double getMLU() {
+        return MLU;
+    }
+
+    public void setMLU(double mlu){
+        MLU = mlu;
+    }
+
     private static class NonEmptyPath extends Path {
         private final Path predecessor;
 
         public NonEmptyPath(Path path, Link edge) {
-            super(edge.getB(), path.totalCost + (double) edge.getCost());
+            super(edge.getB(), path.totalCost + (double) edge.getCost(),
+                    path.load + (double) edge.getBandwidth(), path.MAX_LOAD + (double)edge.MAX_BAND, MLU);
+
+            MLU = path.getMLU();
+            if(MLU < ((edge.getBandwidth()/(double)edge.MAX_BAND)*100)){
+                MLU = (edge.getBandwidth()/(double)edge.MAX_BAND)*100;
+                path.setMLU(MLU);
+            }
             predecessor = path;
 
         }

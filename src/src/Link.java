@@ -5,7 +5,7 @@ public class Link {
     private Node a;
     private Node b;
     private int cost;
-    private final int MAX_BAND = 10;
+    protected final int MAX_BAND = 10;
     private int bandwidth;
 
 

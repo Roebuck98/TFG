@@ -7,9 +7,7 @@ public class App {
     public static void main(String[] args) {
         
         InitData initdata = new InitData();
-
         Graph graph;
-
         graph = initdata.init();
 
         List<Node> nodes = new ArrayList<>();
@@ -20,18 +18,18 @@ public class App {
 
         Node end = graph.searchByID(4);
 
-        List<Path> paths = new DefaultKShortestPathFinder()
+        List<Path>  paths= new DefaultKShortestPathFinder()
                 .findShortestPaths(init, end, graph, 5);
 
-        for (Path path : paths) {
+        /*for (Path path : paths) {
             for (Node n:
                  path.getNodeList()) {
                 System.out.print(n.getName() + ", ");
             }
 
 
-            System.out.println(" " + path.pathCost());
-        }
+            System.out.println(" " + path.pathCost() + " " + (path.getLoad()/path.getMAX_LOAD())*100 + "%" + ", MLU = " + path.getMLU());
+        }*/
 
 
 

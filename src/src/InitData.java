@@ -60,6 +60,19 @@ public class InitData {
         linkH = new Link(nodeE, nodeF, 5);
         linkH2 = new Link(nodeF, nodeE, 5);
 
+        linkA.setBandwidth(3);
+        linkA2.setBandwidth(4);
+        linkB.setBandwidth(2);
+        linkB2.setBandwidth(2);
+        linkC.setBandwidth(1);
+
+        linkD.setBandwidth(4);
+        linkD2.setBandwidth(4);
+        linkG.setBandwidth(5);
+
+
+
+
 
     }
 
