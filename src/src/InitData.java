@@ -1,128 +1,110 @@
 package src;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class InitData {
 
-    Node nodeA;
-    Node nodeB;
-    Node nodeC;
-    Node nodeD;
-    Node nodeE;
-    Node nodeF;
-    Link linkA;
-    Link linkB;
-    Link linkC;
-    Link linkD;
-    Link linkE;
-    Link linkF;
-    Link linkG;
-    Link linkH;
-    Link linkA2;
-    Link linkB2;
-    Link linkC2;
-    Link linkD2;
-    Link linkE2;
-    Link linkF2;
-    Link linkG2;
-    Link linkH2;
     Graph graph;
 
     public InitData() {
-        nodeA = new Node("A", 0);
-        nodeB = new Node("B", 1);
-        nodeC = new Node("C", 2);
-        nodeD = new Node("D", 3);
-        nodeE = new Node("E", 4);
-        nodeF = new Node("F", 5);
+
+        /**
+         * type 0 = normal
+         * type 1 = IN
+         * type 2 = EN
+         * type 3 = FW
+         * type 4 = IDS
+         * type 5 = NAT
+         * type 6 = PROXY
+         *
+         */
         graph = new Graph();
-
-
-        linkA = new Link(nodeA, nodeB, 10);
-        linkA2 = new Link(nodeB, nodeA, 10);
-
-        linkB = new Link(nodeA, nodeC, 15);
-        linkB2 = new Link(nodeC, nodeA, 15);
-
-        linkC = new Link(nodeB, nodeD, 12);
-        linkC2 = new Link(nodeD, nodeB, 12);
-
-        linkD = new Link(nodeB, nodeF, 15);
-        linkD2 = new Link(nodeF, nodeB, 15);
-
-        linkE = new Link(nodeE, nodeC, 10);
-        linkE2 = new Link(nodeC, nodeE, 10);
-
-        linkF = new Link(nodeD, nodeE, 2);
-        linkF2 = new Link(nodeE, nodeD, 2);
-
-        linkG = new Link(nodeF, nodeD, 1);
-        linkG2 = new Link(nodeD, nodeF, 1);
-
-        linkH = new Link(nodeE, nodeF, 5);
-        linkH2 = new Link(nodeF, nodeE, 5);
-
-        linkA.setBandwidth(3);
-        linkA2.setBandwidth(4);
-        linkB.setBandwidth(2);
-        linkB2.setBandwidth(2);
-        linkC.setBandwidth(1);
-
-        linkD.setBandwidth(4);
-        linkD2.setBandwidth(4);
-        linkG.setBandwidth(5);
-
-
-
-
 
     }
 
-    public Graph init() {
+    public Graph init() throws IOException {
 
-        nodeA.addDestination(nodeB, linkA);
-        nodeA.addDestination(nodeC, linkB);
-        nodeB.addDestination(nodeA, linkA);
-        nodeC.addDestination(nodeA, linkB);
-
-        nodeB.addDestination(nodeD, linkC);
-        nodeB.addDestination(nodeF, linkD);
-        nodeD.addDestination(nodeB, linkC);
-        nodeF.addDestination(nodeB, linkD);
-
-        nodeC.addDestination(nodeE, linkE);
-        nodeE.addDestination(nodeC, linkE);
-
-        nodeD.addDestination(nodeE, linkF);
-        nodeD.addDestination(nodeF, linkG);
-        nodeE.addDestination(nodeD, linkF);
-        nodeF.addDestination(nodeD, linkG);
-
-        nodeF.addDestination(nodeE, linkH);
-        nodeE.addDestination(nodeF, linkH);
-
-        graph.addNode(nodeA);
-        graph.addNode(nodeB);
-        graph.addNode(nodeC);
-        graph.addNode(nodeD);
-        graph.addNode(nodeE);
-        graph.addNode(nodeF);
-
-        graph.addLink(linkA);
-        graph.addLink(linkB);
-        graph.addLink(linkC);
-        graph.addLink(linkD);
-        graph.addLink(linkE);
-        graph.addLink(linkF);
-        graph.addLink(linkG);
-        graph.addLink(linkH);
-        graph.addLink(linkA2);
-        graph.addLink(linkB2);
-        graph.addLink(linkC2);
-        graph.addLink(linkD2);
-        graph.addLink(linkE2);
-        graph.addLink(linkF2);
-        graph.addLink(linkG2);
-        graph.addLink(linkH2);
+        graph.setNodes(initNodes());
+        graph.setLinks(initLinks());
+        initVNFs();
 
         return graph;
     }
+
+    public ArrayList initNodes() throws IOException {
+        ArrayList<Node> nodes = new ArrayList<>();
+        String row;
+        BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/N.csv"));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            int NON = Integer.parseInt(data[0]);
+            System.out.println(NON);
+            for (int i = 1; i <= NON; i++){
+                nodes.add(new Node(Character.toString((char) i+64), i));
+            }
+
+        }
+        csvReader.close();
+        return nodes;
+    }
+
+    public ArrayList initLinks() throws IOException {
+        ArrayList<Link> links = new ArrayList<>();
+        String row;
+        BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/linkRete.csv"));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            links.add(new Link(Integer.parseInt(data[0]), graph.searchByID(Integer.parseInt(data[1])), graph.searchByID(Integer.parseInt(data[2])), Integer.parseInt(data[3])));
+
+        }
+        csvReader.close();
+
+
+        return links;
+    }
+
+    public void initVNFs() throws IOException {
+        String row;
+        BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/VNF_cap.csv"));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            Node aux;
+            aux = graph.searchByID(Integer.parseInt(data[0]));
+            aux.addVNF(new VNF(aux, Integer.parseInt(data[1]), Integer.parseInt(data[2])));
+
+        }
+        csvReader.close();
+
+    }
+
+    public ArrayList initInstructions(int i) throws IOException {
+        ArrayList<Instruction> instructions = new ArrayList<>();
+        String row;
+        BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/R_" + i + ".csv"));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            ArrayList<Integer> slots = new ArrayList<>();
+            for (int j = 5; j < 15; j++){
+                slots.add(Integer.parseInt(data[i]));
+            }
+
+            instructions.add(new Instruction(Integer.parseInt(data[0]),
+                    graph.searchByID(Integer.parseInt(data[1])),
+                    graph.searchByID(Integer.parseInt(data[2])),
+                    Integer.parseInt(data[3]),
+                    Integer.parseInt(data[4])));
+            instructions.get(instructions.size()-1).setSlots(slots);
+
+        }
+        csvReader.close();
+
+        return instructions;
+    }
+
 }

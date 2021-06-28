@@ -2,6 +2,7 @@ package src;
 
 public class Link {
 
+    private int ID;
     private Node a;
     private Node b;
     private int cost;
@@ -9,8 +10,8 @@ public class Link {
     private int bandwidth;
 
 
-    public Link(Node a, Node b, int cost) {
-
+    public Link(int ID, Node a, Node b, int cost) {
+        this.ID = ID;
         this.a = a;
         this.b = b;
         this.cost = cost;

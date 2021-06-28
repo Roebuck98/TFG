@@ -3,8 +3,8 @@ package src;
 import java.util.*;
 
 public class Graph {
-    private Set<Node> nodes = new HashSet<>();
-    private Set<Link> links = new HashSet<>();
+    private List<Node> nodes = new ArrayList<>();
+    private List<Link> links = new ArrayList<>();
 
     public void addNode(Node nodeA) {
         nodes.add(nodeA);
@@ -14,19 +14,19 @@ public class Graph {
         links.add(link);
     }
 
-    public Set<Node> getNodes() {
+    public List<Node> getNodes() {
         return nodes;
     }
 
-    public Set<Link> getLinks() {
+    public List<Link> getLinks() {
         return links;
     }
 
-    public void setNodes(Set<Node> nodes) {
+    public void setNodes(List<Node> nodes) {
         this.nodes = nodes;
     }
 
-    public void setLinks(Set<Link> links) {
+    public void setLinks(List<Link> links) {
         this.links = links;
     }
 
@@ -67,6 +67,20 @@ public class Graph {
         }
 
         return searchedLink;
+    }
+
+    public List<Node> getNodesBySFC(int i){
+        List<Node> nds = new ArrayList<>();
+        for (Node n: nodes) {
+            for (VNF v: n.getVNFs()) {
+                if(v.getSFCtype() == i && !nds.contains(n)){
+                    nds.add(n);
+                }
+            }
+        }
+
+
+        return nds;
     }
 
 }
