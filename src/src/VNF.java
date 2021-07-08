@@ -7,7 +7,7 @@ public class VNF {
     Node n;
     int SFCtype;
     int bandwith;
-    int actualbd;
+    double actualbd;
     List <Instruction> SFC;
 
     public VNF(Node n, int SFCtype, int bandwith){
@@ -26,11 +26,11 @@ public class VNF {
         SFC.add(ins);
     }
 
-    public void setActualbd(int actualbd) {
+    public void setActualbd(double actualbd) {
         this.actualbd = actualbd;
     }
 
-    public int getActualbd() {
+    public double getActualbd() {
         return actualbd;
     }
 
@@ -43,4 +43,9 @@ public class VNF {
         }
         return ins;
     }
+
+    public void removeSFC(Instruction ins){
+        SFC.remove(ins);
+    }
+
 }

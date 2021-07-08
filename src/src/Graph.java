@@ -48,7 +48,7 @@ public class Graph {
 
         for (Link link:
              links) {
-            if(link.getA().equals(a) && link.getB().equals(b) || link.getA().equals(b) && link.getB().equals(a) ){
+            if(link.getA().equals(a) && link.getB().equals(b) ){
                 searchedLink = link;
             }
         }
@@ -81,6 +81,20 @@ public class Graph {
 
 
         return nds;
+    }
+
+    public boolean checkAvailablePath(List<Node> nodes, int amount){
+        for (int i = 0; i < nodes.size()-1; i++){
+            Link l = searchLink(nodes.get(i), nodes.get(i+1));
+            Link l2 = searchLink(nodes.get(i+1), nodes.get(i));
+            if (l.getBandwidth() + amount >= l.MAX_BAND || l2.getBandwidth() + amount >= l2.MAX_BAND){
+                System.out.println("Camino ocupado");
+                return false;
+
+            }
+        }
+
+        return true;
     }
 
 }

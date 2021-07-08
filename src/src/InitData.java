@@ -1,12 +1,11 @@
 package src;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InitData {
 
@@ -44,7 +43,6 @@ public class InitData {
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
             int NON = Integer.parseInt(data[0]);
-            System.out.println(NON);
             for (int i = 1; i <= NON; i++){
                 nodes.add(new Node(Character.toString((char) i+64), i));
             }
@@ -61,7 +59,6 @@ public class InitData {
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
             links.add(new Link(Integer.parseInt(data[0]), graph.searchByID(Integer.parseInt(data[1])), graph.searchByID(Integer.parseInt(data[2])), Integer.parseInt(data[3])));
-
         }
         csvReader.close();
 
@@ -91,13 +88,13 @@ public class InitData {
             String[] data = row.split(",");
             ArrayList<Integer> slots = new ArrayList<>();
             for (int j = 5; j < 15; j++){
-                slots.add(Integer.parseInt(data[i]));
+                slots.add(Integer.parseInt(data[j]));
             }
 
             instructions.add(new Instruction(Integer.parseInt(data[0]),
                     graph.searchByID(Integer.parseInt(data[1])),
                     graph.searchByID(Integer.parseInt(data[2])),
-                    Integer.parseInt(data[3]),
+                    Double.parseDouble(data[3]),
                     Integer.parseInt(data[4])));
             instructions.get(instructions.size()-1).setSlots(slots);
 
@@ -105,6 +102,41 @@ public class InitData {
         csvReader.close();
 
         return instructions;
+    }
+
+    public ArrayList initSFCDesc () throws IOException {
+        ArrayList<SFC_Desc> sfcd = new ArrayList<>();
+        String row;
+        BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/SFC_description.csv"));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            sfcd.add(new SFC_Desc(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2])));
+        }
+        csvReader.close();
+        return sfcd;
+    }
+
+    public Map initChains () throws IOException{
+        Map<Integer, List> chains = new HashMap<>();
+        String row;
+        for (int i = 1; i > 0; i++){
+            File csvFile = new File("DataSet/chain_instance_"+i+".csv");
+            List<CInstance> ci;
+            if (csvFile.isFile()) {
+                BufferedReader csvReader = new BufferedReader(new FileReader("DataSet/chain_instance_"+i+".csv"));
+                ci = new ArrayList<>();
+                while ((row = csvReader.readLine()) != null) {
+                    String[] data = row.split(",");
+
+                    ci.add(new CInstance(graph.searchByID(Integer.parseInt(data[0])), Integer.parseInt(data[1])));
+                }
+                chains.put(i, ci);
+                csvReader.close();
+            }else{
+                break;
+            }
+        }
+        return chains;
     }
 
 }

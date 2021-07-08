@@ -6,16 +6,17 @@ public class Link {
     private Node a;
     private Node b;
     private int cost;
-    protected final int MAX_BAND = 10;
-    private int bandwidth;
+    protected double MAX_BAND;
+    private double bandwidth;
 
 
-    public Link(int ID, Node a, Node b, int cost) {
+    public Link(int ID, Node a, Node b, double MAX_BAND) {
         this.ID = ID;
         this.a = a;
         this.b = b;
-        this.cost = cost;
-        bandwidth = 0;
+        this.cost = 1;
+        this.MAX_BAND = MAX_BAND;
+        bandwidth = 0.0;
     }
 
     public Node getA() {
@@ -26,36 +27,20 @@ public class Link {
         return b;
     }
 
-
-    public void setA(Node a) {
-        this.a = a;
-    }
-
-    public void setB(Node b) {
-        this.b = b;
-    }
-
-
     public int getCost() {
         return cost;
     }
 
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public int getBandwidth() {
+    public double getBandwidth() {
         return bandwidth;
     }
 
-    public void setBandwidth(int bandwidth) {
-        if(this.bandwidth + bandwidth > MAX_BAND){
-            System.out.println("Cannot take this link because it would cause overflow");
-        }else{
-            this.bandwidth = bandwidth;
-        }
+    public void addBW(double bw){
+        bandwidth = bandwidth + bw;
+    }
 
-
+    public void subBW(double bw){
+        bandwidth = bandwidth - bw;
     }
 
 
