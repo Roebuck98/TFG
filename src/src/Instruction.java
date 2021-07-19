@@ -15,6 +15,7 @@ public class Instruction {
     private double TCAM;
 
     private Node actual;
+    private Node installNode;
     private int SFCactual;
 
     private List<Node> path;
@@ -26,7 +27,7 @@ public class Instruction {
     private boolean installed;
     private boolean satisfied;
     private int inactive;
-    protected int MAX_INACTIVE = 2;
+    protected int MAX_INACTIVE;
 
     public Instruction(int ID, Node IN, Node EN, double TCAM, int SFC){
         this.ID = ID;
@@ -39,7 +40,7 @@ public class Instruction {
         ci = new ArrayList<>();
         inactive = 0;
         installed = false;
-        satisfied = true;
+        satisfied = false;
     }
 
     public int getSFC() {
@@ -68,6 +69,7 @@ public class Instruction {
 
     public void setSFCactual(int SFCactual) {
         this.SFCactual = SFCactual;
+        //MAX_INACTIVE = MAX_INACTIVE + 1;
     }
 
     public int getSFCactual() {
@@ -98,6 +100,10 @@ public class Instruction {
         return MAX_INACTIVE;
     }
 
+    public void setMAX_INACTIVE(int MAX_INACTIVE) {
+        this.MAX_INACTIVE = MAX_INACTIVE;
+    }
+
     public void setInactive(int inactive) {
         this.inactive = inactive;
     }
@@ -120,5 +126,17 @@ public class Instruction {
 
     public void addNodeToPath(Node n){
         path.add(n);
+    }
+
+    public boolean isSatisfied() {
+        return satisfied;
+    }
+
+    public void setInstallNode(Node installNode) {
+        this.installNode = installNode;
+    }
+
+    public Node getInstallNode() {
+        return installNode;
     }
 }

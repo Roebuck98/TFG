@@ -75,11 +75,11 @@ public class Path {
 
         public NonEmptyPath(Path path, Link edge) {
             super(edge.getB(), path.totalCost + (double) edge.getCost(),
-                    path.load + (double) edge.getBandwidth(), path.MAX_LOAD + (double)edge.MAX_BAND, MLU);
+                    path.load + edge.getBandwidth(), path.MAX_LOAD + edge.MAX_BAND, MLU);
 
             MLU = path.getMLU();
-            if(MLU < ((edge.getBandwidth()/(double)edge.MAX_BAND)*100)){
-                MLU = (edge.getBandwidth()/(double)edge.MAX_BAND)*100;
+            if(MLU < ((edge.getBandwidth()/ edge.MAX_BAND)*100)){
+                MLU = (edge.getBandwidth()/ edge.MAX_BAND)*100;
                 path.setMLU(MLU);
             }
             predecessor = path;

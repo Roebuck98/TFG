@@ -19,9 +19,5 @@ public class SFC_Desc {
         return type;
     }
 
-    public int getN_instance() {
-        return n_instance;
-    }
-
 
 }

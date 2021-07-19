@@ -1,6 +1,5 @@
 package src;
 
-import java.sql.Array;
 import java.util.*;
 
 public class Node {
@@ -8,7 +7,7 @@ public class Node {
     private String name;
     private int ID;
     private ArrayList<Instruction> TCAM;
-    protected final int MEMORY_SIZE_TOTAL = 5;
+    protected int MEMORY_SIZE_TOTAL;
     private List <Instruction> buffer = new LinkedList<>();
     private List <VNF> VNFs = new LinkedList<>();
 
@@ -73,4 +72,7 @@ public class Node {
 
     }
 
+    public void setMemorySizeTotal(int memorySizeTotal) {
+        MEMORY_SIZE_TOTAL = memorySizeTotal;
+    }
 }

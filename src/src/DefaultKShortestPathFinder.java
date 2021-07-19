@@ -2,8 +2,20 @@ package src;
 
 import java.util.*;
 
+/**
+ * Clase utilizada para encontrar una lista de caminos más cortos según su coste. Si se quiere sólo encontrar el camino más corto,
+ *  se debe invocar con el atributo K = 0.
+ */
 public class DefaultKShortestPathFinder {
 
+    /**
+     * Encuentra una lista de caminos más cortos según el coste de los enlaces.
+     * @param source Nodo inicial, del que parte el camino
+     * @param target Nodo final, a donde se dirige el camino
+     * @param graph El grafo indicando todos los caminos posibles
+     * @param k El número de caminos a encontrar
+     * @return
+     */
     public List<Path> findShortestPaths(Node source, Node target, Graph graph, int k) {
 
         checkK(k);
@@ -36,6 +48,10 @@ public class DefaultKShortestPathFinder {
         return paths;
     }
 
+    /**
+     * Comprueba que K nunca sea 0, o si no, no encontraría caminos
+     * @param k El número de caminos a encontrar
+     */
     void checkK(int k) {
         if (k < 1) {
             throw new IllegalArgumentException(

@@ -6,14 +6,14 @@ import java.util.List;
 public class VNF {
     Node n;
     int SFCtype;
-    int bandwith;
+    double bandwidth;
     double actualbd;
     List <Instruction> SFC;
 
-    public VNF(Node n, int SFCtype, int bandwith){
+    public VNF(Node n, int SFCtype, double bandwidth){
         this.n = n;
         this.SFCtype = SFCtype;
-        this.bandwith = bandwith;
+        this.bandwidth = bandwidth;
         SFC = new ArrayList<>();
         actualbd = 0;
     }
@@ -32,16 +32,6 @@ public class VNF {
 
     public double getActualbd() {
         return actualbd;
-    }
-
-    public Instruction searchByID(int ID){
-        Instruction ins = new Instruction(-1, new Node(), new Node(), 0,0);
-        for (Instruction i: SFC) {
-            if (i.getID() == ID){
-                ins = i;
-            }
-        }
-        return ins;
     }
 
     public void removeSFC(Instruction ins){
