@@ -26,7 +26,7 @@ public class App {
         InitData initdata = new InitData();
 
         graph = initdata.init();
-        ins = initdata.initInstructions(1);
+        ins = initdata.initInstructions(5);
         sfcd = initdata.initSFCDesc();
         chains = initdata.initChains();
 
@@ -166,12 +166,6 @@ public class App {
             if (graph.checkAvailablePath(path.getNodeList(), ins.getTCAM())){
                 ins.setSatisfied(true);
                 ins.setActual(ins.getEN());
-                /*for (Node n: path.getNodeList()) {
-                    if (!n.equals(ins.getPath().get(ins.getPath().size()-1))){
-                        ins.addNodeToPath(n);
-                    }
-
-                }*/
 
                 for (int j = 1; j< path.getNodeList().size(); j++){
                     ins.addNodeToPath(path.getNodeList().get(j));
@@ -191,26 +185,29 @@ public class App {
             //Para actualizar la capacidad de los enlaces
 
             //Se desliga el valor de la memoria y la lista de SFC del VNF
-            updateVNF(ins, 1);
+            if (ins.getSFCactual()>0){
+                updateVNF(ins, 1);
+            }
 
             if (!ins.getCi().get(ins.getSFCactual()).getN().equals(ins.getActual())){
                 path = getKSPLowMLU(ins.getActual(), ins.getCi().get(ins.getSFCactual()).getN());
 
                 if (graph.checkAvailablePath(path.getNodeList(), ins.getTCAM())){
-                    /*for (Node n: path.getNodeList()) {
-                        if (!n.equals(ins.getPath().get(ins.getPath().size()-1))){
-                            ins.addNodeToPath(n);
-                        }
 
-                    }*/
                     for (int j = 1; j < path.getNodeList().size(); j++){
                         ins.addNodeToPath(path.getNodeList().get(j));
                     }
                     updateLinks(path.getNodeList(), ins, 0);
                     ins.setSFCactual(ins.getSFCactual()+1);
                     ins.setActual(path.getEndNode());
+
                     //Se actualizan los valores del nuevo VNF, su bandwidth y su lista de SFCs
-                    updateVNF(ins, 0);
+                    if (ins.getSFCactual() < ins.getSFC()){
+                        System.out.println("Instrucción: " + ins.getID() + ", SFC: "+ins.getSFCactual() + " / " + ins.getSFC());
+                        System.out.println("Nodo actual: " + ins.getActual().getID());
+                        updateVNF(ins, 0);
+                    }
+
                 }
                 else{
                     System.out.println("La regla " + ins.getID() + " no ha podido seguir la cadena, y por lo tanto, será descartada.");
@@ -278,17 +275,19 @@ public class App {
      * @return
      */
     public static Path getKSPLowMLU(Node a, Node b){
-        Path path = new Path(a);
-        double MLU = 100.0;
+        Path path = null;
 
-        List<Path>  paths= new DefaultKShortestPathFinder()
-                .findShortestPaths(a, b, graph, 15);
+        List<Path>  paths= new DefaultKShortestPathFinder().findShortestPaths(a, b, graph, 15);
         for (Path p : paths) {
            if(!checkLoops(p)){
-                if(p.getMLU() < MLU){
-                    path = p;
-                    MLU = p.getMLU();
-                }
+               if(path == null){
+                   path = p;
+               }else{
+                   if(p.getMLU() < path.getMLU()){
+                       path = p;
+                   }
+               }
+
            }
         }
         return path;
@@ -370,12 +369,27 @@ public class App {
 
         switch (add_or_remove){
             case 0:
-                ins.getActual().getVNFByType(ins.getSFCactual()).setActualbd(ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd()+ins.getTCAM());
-                ins.getActual().getVNFByType(ins.getSFCactual()).addSFC(ins);
+                if (ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() + ins.getTCAM() < ins.getActual().getVNFByType(ins.getSFCactual()).getBandwidth()){
+                    ins.getActual().getVNFByType(ins.getSFCactual()).setActualbd(ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd()+ins.getTCAM());
+                    ins.getActual().getVNFByType(ins.getSFCactual()).addSFC(ins);
+                    System.out.println("Capacidad del VNF: " + ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() + " / " + ins.getActual().getVNFByType(ins.getSFCactual()).getBandwidth());
+                }else{
+                    System.out.println("SE HA SUPERADO EL LÍMITE DE MEMORIA DEL VNF, SE PROCEDERÁ AL DESCARTE:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    System.out.println("Capacidad del VNF: " + ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() + " / " + ins.getActual().getVNFByType(ins.getSFCactual()).getBandwidth());
+                    discardSFC(ins.getID());
+                }
+
+
                 break;
             case 1:
-                ins.getActual().getVNFByType(ins.getSFCactual()).setActualbd(ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd()-ins.getTCAM());
-                ins.getActual().getVNFByType(ins.getSFCactual()).removeSFC(ins);
+                if (ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() - ins.getTCAM() > 0.0){
+                    ins.getActual().getVNFByType(ins.getSFCactual()).setActualbd(ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd()-ins.getTCAM());
+                    ins.getActual().getVNFByType(ins.getSFCactual()).removeSFC(ins);
+                }else{
+                    System.out.println("VALOR NEGATIVO DEL VNF, COMPRUEBE EL ERROR::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                }
+
+
                 break;
 
         }

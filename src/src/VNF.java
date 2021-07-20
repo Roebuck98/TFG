@@ -68,4 +68,11 @@ public class VNF {
         SFC.remove(ins);
     }
 
+    /**
+     * Devuelve el máximo de capacidad de un VNF
+     * @return La capacidad máxima de un VNF
+     */
+    public double getBandwidth() {
+        return bandwidth;
+    }
 }
