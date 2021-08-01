@@ -112,7 +112,11 @@ public class Instruction {
      */
     public void setSFCactual(int SFCactual) {
         this.SFCactual = SFCactual;
-        //MAX_INACTIVE = MAX_INACTIVE + 1;
+        /*
+        setMAX_INACTIVE(getMAX_INACTIVE()-1);
+        if(MAX_INACTIVE < 1){
+            MAX_INACTIVE = 1;
+        }*/
     }
 
     /**

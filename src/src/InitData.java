@@ -1,10 +1,7 @@
 package src;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Clase para inicializar los datos de sus respectivos archivos
@@ -14,6 +11,7 @@ public class InitData {
     Graph graph;
     int mem;
     int idle_timeout;
+    int prob;
 
     /**
      * Inicializa el grafo
@@ -39,6 +37,7 @@ public class InitData {
             String[] data = row.split(",");
             mem = Integer.parseInt(data[1]);
             idle_timeout = Integer.parseInt(data[0]);
+            prob = Math.round(100 / Integer.parseInt(data[2]));
         }
         csvReader.close();
 
@@ -128,9 +127,21 @@ public class InitData {
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
             ArrayList<Integer> slots = new ArrayList<>();
+            int counter = 0;
             for (int j = 5; j < 15; j++){
                 slots.add(Integer.parseInt(data[j]));
+                //slots.add((int)Math.floor(Math.random()*(1-0+1)+0));
+
+                /*if(counter < prob){
+                    slots.add(1);
+                    counter ++;
+                }else{
+                    slots.add(0);
+                }
+                Collections.shuffle(slots);*/
             }
+
+
 
             instructions.add(new Instruction(Integer.parseInt(data[0]),
                     graph.searchByID(Integer.parseInt(data[1])),
@@ -194,4 +205,7 @@ public class InitData {
         return chains;
     }
 
+    public int getIdle_timeout() {
+        return idle_timeout;
+    }
 }

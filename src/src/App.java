@@ -8,6 +8,7 @@ public class App {
     static Graph graph;
     static List <Instruction> ins;
     static List<SFC_Desc> sfcd;
+    static int staticIdle;
     static Map <Integer, List<CInstance>> chains;
     static List <Instruction> installed = new ArrayList<>();
     static List <Instruction> removed = new ArrayList<>();
@@ -29,6 +30,7 @@ public class App {
         ins = initdata.initInstructions(5);
         sfcd = initdata.initSFCDesc();
         chains = initdata.initChains();
+        staticIdle = initdata.getIdle_timeout();
 
 
         for (int i = 0; i < 10; i++) {
@@ -37,24 +39,24 @@ public class App {
         }
 
         System.out.println("Reglas instaladas: " + installed.size());
+        System.out.println("Porcentaje de instalación: " + installed.size()*100.0/ (removed.size()+satisfied.size()+ins.size()));
         System.out.println("Reglas descartadas: " + removed.size());
         System.out.println("Reglas satisfechas: " + satisfied.size());
         System.out.println("Reglas restantes: " + ins.size());
-
-
     }
 
     /**
-     *
-     * @param ins
-     * @param slot
+     * Módulo que contempla las acciones si una solicitud está activa o inactiva, además de
+     * comprobar las condiciones de instalación y satisfacción.
+     * @param ins La instrucción a tratar
+     * @param slot El slot de tiempo activo o inactivo
      */
     public static void exec(List<Instruction> ins, int slot){
 
         //Instrucción por Instruccion
         for (int i = 0; i < ins.size(); i++) {
             Instruction inst = ins.get(i);
-
+            System.out.println("INICIO DE INSTRUCCIÓN: " + inst.getID());
             if (inst.getSlots().get(slot) == 1){
                 inst.setInactive(0);
 
@@ -97,15 +99,16 @@ public class App {
 
                 }
             }
-
+            System.out.println("FIN DE INSTRUCCIÓN: " + inst.getID());
         }
 
     }
 
     /**
-     *
-     * @param ins
-     * @return
+     * Instala una solicitud en un nodo dado un camino ópyimo. Si no encuentra en ninguno de los caminos un
+     * nodo con ranura disponible o un camino con menos de 100 de MLU, la instrucción se descarta
+     * @param ins La instrucción a instalar
+     * @return El nodo donde se ha instalado la solicitud SFC
      */
     public static Node installRule(Instruction ins){
         Boolean installed = false;
@@ -128,7 +131,7 @@ public class App {
                             ins.addNodeToPath(path.getNodeList().get(j));
                         }
                         updateLinks(ins.getPath(), ins, 0);
-
+                        evaluateTimeout(ins);
                     }
 
                 }
@@ -146,8 +149,10 @@ public class App {
     }
 
     /**
-     *
-     * @param ins
+     * Opera el siguiente salto de la instrucción. Si es su primer salto desde el nodo clasificador, le asigna una cadena.
+     * Si es un salto entre cadenas, identifica si se tiene que quedar en el mismo nodo o ir a otro.
+     * También identifica cuando la cadena se termina y cuando tiene que saltar al Egress Node
+     * @param ins La instrucción a tratar.
      */
     public static void nextJump (Instruction ins){
         Path path;
@@ -227,15 +232,15 @@ public class App {
     }
 
     /**
-     *
-     * @param path
-     * @return
+     * Comprueba que los caminos no tengan bucles innecesarios
+     * @param path El camino a comprobar
+     * @return True si el camino tiene bucles, False si no
      */
     public static Boolean checkLoops(Path path){
         boolean loop = false;
 
-        for (int i = 0; i < path.getNodeList().size()-2 && !loop; i++){
-           if(path.getNodeList().get(i).equals(path.getNodeList().get(i+2))){
+        for (int i = 2; i < path.getNodeList().size()-2 && !loop; i++){
+           if(path.getNodeList().get(i).equals(path.getNodeList().get(i+2)) && path.getNodeList().get(i).equals(path.getNodeList().get(i-2))){
                loop = true;
            }
         }
@@ -244,8 +249,9 @@ public class App {
     }
 
     /**
-     *
-     * @param ID
+     * Descarta la instrucción de la simulación. Limpia los enlaces y VNF por donde pasaba la instrucción.
+     * Agrefa la instrucción a la lista de descartes.
+     * @param ID El identificador de la instrucción a eliminar
      */
     public static void discardSFC(int ID){
         Instruction i;
@@ -269,10 +275,10 @@ public class App {
     }
 
     /**
-     *
-     * @param a
-     * @param b
-     * @return
+     * Busca un camino entre los K-shortest path que tenga el menor MLU posible
+     * @param a El nodo inicial del camino
+     * @param b El nodo destino del camino
+     * @return El Path con menor MLU
      */
     public static Path getKSPLowMLU(Node a, Node b){
         Path path = null;
@@ -294,8 +300,8 @@ public class App {
     }
 
     /**
-     *
-     * @param ins
+     * Asigna una cadena SFC a una solicitud
+     * @param ins La solicitud a la que la cadena se adhiere
      */
     public static void assignChain(Instruction ins){
         Path path = null;
@@ -327,10 +333,11 @@ public class App {
     }
 
     /**
-     *
-     * @param nodes
-     * @param ins
-     * @param add_or_sub
+     * Actualiza la capacidad de los enlaces de la red según un camino dado. Añade o retira capacidad de flujo cuando sea necesario.
+     * Avisa si existiese capacidad negativa, o si el enlace está por encima de su capacidad.
+     * @param nodes La lista de nodos que conforman el camino.
+     * @param ins La instrucción de dicho camino.
+     * @param add_or_sub Flag que indica si hay que añadir capacidad o retirarla.
      */
     public static void updateLinks(List<Node> nodes, Instruction ins, int add_or_sub){
 
@@ -361,9 +368,10 @@ public class App {
     }
 
     /**
-     *
-     * @param ins
-     * @param add_or_remove
+     * Actualiza las capacidades de una VNF. Puede añadir o retirar según se indique.
+     * Avisa si una capacidad es negativa o si se rebasa el límite.
+     * @param ins La instrucción perteneciente a esa VNF.
+     * @param add_or_remove Indica si hay que sumar o sustraer.
      */
     public static void updateVNF(Instruction ins, int add_or_remove){
 
@@ -382,7 +390,7 @@ public class App {
 
                 break;
             case 1:
-                if (ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() - ins.getTCAM() > 0.0){
+                if (ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd() - ins.getTCAM() >= 0.0){
                     ins.getActual().getVNFByType(ins.getSFCactual()).setActualbd(ins.getActual().getVNFByType(ins.getSFCactual()).getActualbd()-ins.getTCAM());
                     ins.getActual().getVNFByType(ins.getSFCactual()).removeSFC(ins);
                 }else{
@@ -419,5 +427,103 @@ public class App {
             System.out.println(" " + path.pathCost() + " " + (path.getLoad()/path.getMAX_LOAD())*100 + "%" + ", MLU = " + path.getMLU());
         }
     }
+
+    /**
+     *
+     * @param ins
+     */
+    public static void evaluateTimeout(Instruction ins){
+        double rejectedValue = 0;
+        int counterReject = 0;
+        double satisfiedValue = 0;
+        int counterSatisfied = 0;
+        int o = 0;
+        /*Satisfechas = 2, rechazadas = 1
+        */
+
+        for (int i = 0; i < removed.size(); i++) {
+            Instruction aux = removed.get(i);
+            if (aux.getSFC() == ins.getSFC() && aux.getIN().equals(ins.getIN())
+                    && aux.getEN().equals(ins.getEN()) && aux.isInstalled() && aux.MAX_INACTIVE == aux.getInactive()){
+                //Idle Máximo
+                rejectedValue = rejectedValue + aux.MAX_INACTIVE;
+                counterReject++;
+            }
+        }
+        if (counterReject > 0){
+            rejectedValue = rejectedValue / counterReject;
+            o = o + 1;
+        }
+
+        for (int i = 0; i < satisfied.size(); i++) {
+            Instruction aux = satisfied.get(i);
+            if (aux.getSFC() == ins.getSFC() && aux.getIN().equals(ins.getIN()) && aux.getEN().equals(ins.getEN())){
+                //Idle Máximo
+                satisfiedValue = satisfiedValue + aux.MAX_INACTIVE;
+                counterSatisfied++;
+            }
+        }
+        if (counterSatisfied > 0){
+            satisfiedValue = satisfiedValue / counterSatisfied;
+            o = o + 2;
+        }
+
+        switch(o){
+
+            case 1: //Si no hay satisfechas
+                if ((int)Math.round(rejectedValue) >= staticIdle && (int)Math.round(rejectedValue) <= 7){
+                    ins.setMAX_INACTIVE((int)Math.round(rejectedValue-1));
+                }else{
+                    if ((int)Math.round(rejectedValue) < staticIdle){
+                        ins.setMAX_INACTIVE(Math.round(staticIdle -1));
+                    }else{
+                        ins.setMAX_INACTIVE((int)Math.round(rejectedValue/2));
+                    }
+                }
+                break;
+
+            case 2: // Si no hay rechazadas
+                //Si entra dentro de unos márgenes
+                if ((int)Math.round(satisfiedValue) >= staticIdle && (int)Math.round(satisfiedValue) <= 7){
+                    ins.setMAX_INACTIVE((int)Math.round(satisfiedValue-1));
+                }else{
+                    if ((int)Math.round(satisfiedValue) < staticIdle){
+                        ins.setMAX_INACTIVE(staticIdle);
+                    }else{
+                        ins.setMAX_INACTIVE((int)Math.round(satisfiedValue)/2);
+                    }
+                }
+                break;
+
+            case 3: // Si existen ambas
+                if (counterReject > counterSatisfied){
+                    int idealIdle = (int)Math.round((rejectedValue * 0.5 + satisfiedValue  * 2) / 2.0);
+                    if (idealIdle >= staticIdle && idealIdle <= 7){
+                        ins.setMAX_INACTIVE(idealIdle);
+                    }else {
+                        if (idealIdle < staticIdle) {
+                            ins.setMAX_INACTIVE(staticIdle);
+                        } else {
+                            ins.setMAX_INACTIVE(Math.round(idealIdle/2));
+                        }
+                    }
+                }else{
+                        if ((int)Math.round(satisfiedValue) >= staticIdle && (int)Math.round(satisfiedValue) <= 7){
+                            ins.setMAX_INACTIVE((int)Math.round(satisfiedValue+1));
+                        }else{
+                            if ((int)Math.round(satisfiedValue) < staticIdle){
+                                ins.setMAX_INACTIVE(staticIdle);
+                            }else{
+                                ins.setMAX_INACTIVE((int) Math.round(satisfiedValue/2));
+                            }
+                        }
+                }
+                break;
+            default: //Si no existe ninguna de las dos
+                ins.setMAX_INACTIVE(staticIdle+1);
+                break;
+        }
+    }
+
 
 }
