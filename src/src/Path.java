@@ -124,7 +124,7 @@ public class Path {
         private final Path predecessor;
 
         /**
-         * Constructir parametriizado
+         * Constructor parametrizado
          * @param path El camino recorrido hasta ahora, donde se le añadirá el nuevo enlace.
          * @param edge El enlace a añadir
          */

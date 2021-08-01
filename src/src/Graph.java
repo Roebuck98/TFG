@@ -110,4 +110,11 @@ public class Graph {
         return true;
     }
 
+    /**
+     * Devuelve la lista de enlaces.
+     * @return Una Lista de Links.
+     */
+    public List<Link> getLinks() {
+        return links;
+    }
 }

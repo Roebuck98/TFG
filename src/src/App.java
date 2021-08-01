@@ -32,17 +32,30 @@ public class App {
         chains = initdata.initChains();
         staticIdle = initdata.getIdle_timeout();
 
+        double avMLU = 0.0;
 
         for (int i = 0; i < 10; i++) {
             System.out.println("Slot numero: " + i + " /////////////////////////////////////////////////");
             exec(ins, i);
         }
 
+        Collections.sort(installed, Comparator.comparing(Instruction::getID));
+        Collections.sort(removed, Comparator.comparing(Instruction::getID));
+        Collections.sort(satisfied, Comparator.comparing(Instruction::getID));
         System.out.println("Reglas instaladas: " + installed.size());
         System.out.println("Porcentaje de instalación: " + installed.size()*100.0/ (removed.size()+satisfied.size()+ins.size()));
         System.out.println("Reglas descartadas: " + removed.size());
         System.out.println("Reglas satisfechas: " + satisfied.size());
         System.out.println("Reglas restantes: " + ins.size());
+
+        for (Link l :
+             graph.getLinks()) {
+            avMLU = avMLU + (l.getBandwidth() / l.MAX_BAND)*100;
+        }
+        avMLU = (avMLU/graph.getLinks().size());
+
+        System.out.println("MLU medio de la red: " + avMLU);
+        System.out.println("Número de mensajes entre controladores: " + (installed.size()+removed.size()));
     }
 
     /**
@@ -453,6 +466,8 @@ public class App {
         if (counterReject > 0){
             rejectedValue = rejectedValue / counterReject;
             o = o + 1;
+        }else{
+            //caso base 1
         }
 
         for (int i = 0; i < satisfied.size(); i++) {
@@ -466,6 +481,8 @@ public class App {
         if (counterSatisfied > 0){
             satisfiedValue = satisfiedValue / counterSatisfied;
             o = o + 2;
+        }else {
+            //caso base 2
         }
 
         switch(o){
@@ -497,7 +514,7 @@ public class App {
 
             case 3: // Si existen ambas
                 if (counterReject > counterSatisfied){
-                    int idealIdle = (int)Math.round((rejectedValue * 0.5 + satisfiedValue  * 2) / 2.0);
+                    int idealIdle = (int)Math.round((rejectedValue * 0.2 + satisfiedValue  * 2) / 2.0);
                     if (idealIdle >= staticIdle && idealIdle <= 7){
                         ins.setMAX_INACTIVE(idealIdle);
                     }else {
@@ -520,7 +537,7 @@ public class App {
                 }
                 break;
             default: //Si no existe ninguna de las dos
-                ins.setMAX_INACTIVE(staticIdle+1);
+                ins.setMAX_INACTIVE(staticIdle+2);
                 break;
         }
     }
