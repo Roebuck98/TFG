@@ -8,7 +8,7 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 /**
- * Clase para manejar los caminos. Cada camino está compuesto de nodos, enlaces, su coste total y el MLU.
+ * Clase para manejar los caminos. Cada camino está compuesto de nodos, enlaces y su coste total.
  * Se compone de eslabones de su subclase Non-Empty Path que apuntan siempre al predecesor, obteniendo así el camino inverso.
  */
 public class Path {
@@ -17,7 +17,6 @@ public class Path {
     private final double totalCost;
     private final double load;
     private final double MAX_LOAD;
-    private static double MLU;
 
     /**
      * Constructor parametrizado que sólo necesita el nodo origen
@@ -29,7 +28,6 @@ public class Path {
         totalCost = 0.0;
         load = 0.0;
         MAX_LOAD = 0.0;
-        MLU = 0.0;
     }
 
     /**
@@ -38,14 +36,12 @@ public class Path {
      * @param totalCost El coste total del camino
      * @param load La suma de las cargas totales del camino
      * @param max_load La suma de las cargas máximas de los enlaces del camino
-     * @param MLU La carga máxima de un enlace, simbolizando si el camino entero está disponible o no
      */
-    private Path(Node node, double totalCost, double load, double max_load, double MLU) {
+    private Path(Node node, double totalCost, double load, double max_load) {
         this.node = node;
         this.totalCost = totalCost;
         this.load = load;
         this.MAX_LOAD = max_load;
-        this.MLU = MLU;
     }
 
     /**
@@ -102,22 +98,6 @@ public class Path {
     }
 
     /**
-     * Devuelve el porcentaje de máxima ocupación del enlace más ocupado.
-     * @return Un doble con el porcentaje más alto del camino.
-     */
-    public double getMLU() {
-        return MLU;
-    }
-
-    /**
-     * Establece cual es el prcentaje de ocupación más alto entre los enlaces del camino.
-     * @param mlu Un doble con el porcentaje más alto
-     */
-    public void setMLU(double mlu){
-        MLU = mlu;
-    }
-
-    /**
      * Clase que indica que en el camino, existe una secuencia de nodos en vez de sólo el nodo origen
      */
     private static class NonEmptyPath extends Path {
@@ -130,13 +110,8 @@ public class Path {
          */
         public NonEmptyPath(Path path, Link edge) {
             super(edge.getB(), path.totalCost + (double) edge.getCost(),
-                    path.load + edge.getBandwidth(), path.MAX_LOAD + edge.MAX_BAND, MLU);
+                    path.load + edge.getBandwidth(), path.MAX_LOAD + edge.MAX_BAND);
 
-            MLU = path.getMLU();
-            if(MLU < ((edge.getBandwidth()/ edge.MAX_BAND)*100)){
-                MLU = (edge.getBandwidth()/ edge.MAX_BAND)*100;
-                path.setMLU(MLU);
-            }
             predecessor = path;
 
         }

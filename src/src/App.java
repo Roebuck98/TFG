@@ -18,7 +18,7 @@ public class App {
     /**
      * Clase principal del algoritmo
      *
-     * @param args
+     * @param args Argumentos del algoritmo (no se usan)
      * @throws IOException
      */
 
@@ -56,6 +56,7 @@ public class App {
 
         System.out.println("MLU medio de la red: " + avMLU);
         System.out.println("Número de mensajes entre controladores: " + (installed.size()+removed.size()));
+    //    test();
     }
 
     /**
@@ -146,17 +147,14 @@ public class App {
                         updateLinks(ins.getPath(), ins, 0);
                         evaluateTimeout(ins);
                     }
-
                 }
             }
-
             if (installed) break;
         }
         if(!installed){
             System.out.println("No se ha podido instalar la Instrucción " + ins.getID() + ", se procederá a su descarte");
             discardSFC(ins.getID());
         }
-
         return inInst;
 
     }
@@ -302,11 +300,10 @@ public class App {
                if(path == null){
                    path = p;
                }else{
-                   if(p.getMLU() < path.getMLU()){
+                   if(calcMLU(p.getNodeList()) < calcMLU(path.getNodeList())){
                        path = p;
                    }
                }
-
            }
         }
         return path;
@@ -329,8 +326,8 @@ public class App {
                     ins.setCi(chains.get(sfcd.get(i).getID()));
                 }
                 else{
-                    MLU = path.getMLU();
-                    MLU2 = p2.getMLU();
+                    MLU = calcMLU(path.getNodeList());
+                    MLU2 = calcMLU(p2.getNodeList());
 
                     if(MLU > MLU2){
                         path = p2;
@@ -437,13 +434,15 @@ public class App {
                  path.getNodeList()) {
                 System.out.print(n.getID() + ", ");
             }
-            System.out.println(" " + path.pathCost() + " " + (path.getLoad()/path.getMAX_LOAD())*100 + "%" + ", MLU = " + path.getMLU());
+            System.out.println(" " + path.pathCost() + " " + (path.getLoad()/path.getMAX_LOAD())*100 + "%" + ", MLU = " + calcMLU(path.getNodeList()));
         }
     }
 
     /**
-     *
-     * @param ins
+     * Gestión del Idle dinámico. Revisa las reglas descartadas y las satisfechas, compara si
+     * tienen características parecidas a la Instrucción que se va a instalar, y se le atribuye un
+     * tiempo inactivo máximo en función de cuál de las listas es mayor.
+     * @param ins La Instrucción a la que se va a asignar el idle timeout dinámico.
      */
     public static void evaluateTimeout(Instruction ins){
         double rejectedValue = 0;
@@ -466,8 +465,6 @@ public class App {
         if (counterReject > 0){
             rejectedValue = rejectedValue / counterReject;
             o = o + 1;
-        }else{
-            //caso base 1
         }
 
         for (int i = 0; i < satisfied.size(); i++) {
@@ -481,18 +478,16 @@ public class App {
         if (counterSatisfied > 0){
             satisfiedValue = satisfiedValue / counterSatisfied;
             o = o + 2;
-        }else {
-            //caso base 2
         }
 
         switch(o){
 
             case 1: //Si no hay satisfechas
                 if ((int)Math.round(rejectedValue) >= staticIdle && (int)Math.round(rejectedValue) <= 7){
-                    ins.setMAX_INACTIVE((int)Math.round(rejectedValue-1));
+                    ins.setMAX_INACTIVE((int)Math.round(rejectedValue+2));
                 }else{
                     if ((int)Math.round(rejectedValue) < staticIdle){
-                        ins.setMAX_INACTIVE(Math.round(staticIdle -1));
+                        ins.setMAX_INACTIVE(Math.round(staticIdle));
                     }else{
                         ins.setMAX_INACTIVE((int)Math.round(rejectedValue/2));
                     }
@@ -502,7 +497,7 @@ public class App {
             case 2: // Si no hay rechazadas
                 //Si entra dentro de unos márgenes
                 if ((int)Math.round(satisfiedValue) >= staticIdle && (int)Math.round(satisfiedValue) <= 7){
-                    ins.setMAX_INACTIVE((int)Math.round(satisfiedValue-1));
+                    ins.setMAX_INACTIVE((int)Math.round(satisfiedValue));
                 }else{
                     if ((int)Math.round(satisfiedValue) < staticIdle){
                         ins.setMAX_INACTIVE(staticIdle);
@@ -514,7 +509,7 @@ public class App {
 
             case 3: // Si existen ambas
                 if (counterReject > counterSatisfied){
-                    int idealIdle = (int)Math.round((rejectedValue * 0.2 + satisfiedValue  * 2) / 2.0);
+                    int idealIdle = (int)Math.round((rejectedValue * 0.33 + satisfiedValue  * 3) / 2.0);
                     if (idealIdle >= staticIdle && idealIdle <= 7){
                         ins.setMAX_INACTIVE(idealIdle);
                     }else {
@@ -526,7 +521,7 @@ public class App {
                     }
                 }else{
                         if ((int)Math.round(satisfiedValue) >= staticIdle && (int)Math.round(satisfiedValue) <= 7){
-                            ins.setMAX_INACTIVE((int)Math.round(satisfiedValue+1));
+                            ins.setMAX_INACTIVE((int)Math.round(satisfiedValue-1));
                         }else{
                             if ((int)Math.round(satisfiedValue) < staticIdle){
                                 ins.setMAX_INACTIVE(staticIdle);
@@ -542,5 +537,20 @@ public class App {
         }
     }
 
+    /**
+     * Calcula el MLU de un camino dada una lista de nodos que lo conforma.
+     * @param nodes La lista de nodos.
+     * @return Un Doble con el valor del MLU.
+     */
+    public static double calcMLU(List<Node> nodes){
+        double MLU = 0.0;
+        for (int i = 0; i<nodes.size()-1;i++) {
+            Link l = graph.searchLink(nodes.get(i), nodes.get(i+1));
+            if(MLU < (l.getBandwidth()/l.MAX_BAND)*100){
+                MLU = (l.getBandwidth()/l.MAX_BAND)*100;
+            }
+        }
+        return MLU;
+    }
 
 }

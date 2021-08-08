@@ -37,7 +37,7 @@ public class InitData {
             String[] data = row.split(",");
             mem = Integer.parseInt(data[1]);
             idle_timeout = Integer.parseInt(data[0]);
-            prob = Math.round(100 / Integer.parseInt(data[2]));
+            prob = Math.round(Integer.parseInt(data[2])/10);
         }
         csvReader.close();
 
@@ -129,16 +129,16 @@ public class InitData {
             ArrayList<Integer> slots = new ArrayList<>();
             int counter = 0;
             for (int j = 5; j < 15; j++){
-                slots.add(Integer.parseInt(data[j]));
+                //slots.add(Integer.parseInt(data[j]));
                 //slots.add((int)Math.floor(Math.random()*(1-0+1)+0));
 
-                /*if(counter < prob){
+                if(counter < prob){
                     slots.add(1);
                     counter ++;
                 }else{
                     slots.add(0);
                 }
-                Collections.shuffle(slots);*/
+                Collections.shuffle(slots);
             }
 
 
